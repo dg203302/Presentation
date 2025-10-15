@@ -225,3 +225,72 @@ section{
 	height: 100%;
 	justify-content: center;
 }
+
+/* ===== Subtle animated background + page transitions ===== */
+:root{
+	--bg-anim-duration: 20s;
+	--fade-duration: 360ms;
+	--subtle-opacity: 0.08;
+}
+
+/* Respect user's reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+	* { animation-duration: 0s !important; transition-duration: 0s !important; }
+}
+
+/* Animated soft color blobs behind content (low opacity, not bright) */
+body::before{
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: -2;
+	pointer-events: none;
+	background:
+		radial-gradient(600px 420px at 8% 18%, rgba(120,140,170,0.06), transparent 16%),
+		radial-gradient(520px 360px at 88% 78%, rgba(160,120,140,0.05), transparent 14%);
+	filter: blur(40px);
+	opacity: var(--subtle-opacity);
+	mix-blend-mode: overlay;
+	animation: bgMove var(--bg-anim-duration) linear infinite;
+}
+
+@keyframes bgMove{
+	0%{ transform: translate3d(0,0,0) scale(1); }
+	50%{ transform: translate3d(3%, -6%, 0) scale(1.02); }
+	100%{ transform: translate3d(0,0,0) scale(1); }
+}
+
+/* Page load fade/slide to make 'template' changes feel smooth on navigation */
+body{
+	/* keep existing background; add entry animation */
+	animation: pageFade var(--fade-duration) ease both;
+}
+
+@keyframes pageFade{
+	from{ opacity: 0; transform: translateY(6px); }
+	to{ opacity: 1; transform: none; }
+}
+
+/* Staggered content reveal without moving structure */
+header, main, footer{
+	opacity: 0;
+	transform: translateY(6px);
+	animation: contentIn var(--fade-duration) ease forwards;
+}
+header{ animation-delay: 0.04s; }
+main{ animation-delay: 0.08s; }
+footer{ animation-delay: 0.12s; }
+
+@keyframes contentIn{ to{ opacity: 1; transform: none; } }
+
+/* Gentle hover/interaction improvements (preserve existing behavior) */
+img, .proyecto, a, .tech, .creditos{
+	transition: transform 220ms ease, opacity 220ms ease, box-shadow 220ms ease, background 220ms ease;
+}
+
+/* Keep animations subtle on very small screens */
+@media (max-width: 420px){
+	body::before{ filter: blur(30px); }
+}
+
+/* End of added subtle background & transitions */
